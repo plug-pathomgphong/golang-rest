@@ -1,23 +1,30 @@
 package models
 
-import "github.com/plug-pathomgphong/golang-rest/db"
+import (
+	"github.com/plug-pathomgphong/golang-rest/db"
+	"github.com/plug-pathomgphong/golang-rest/utils"
+)
 
 type User struct {
 	Id       int64
 	Email    string `binding:"required"`
 	Password string `binding:"required"`
-	Salt     string
 }
 
 func (u User) Save() error {
-	query := `INSERT INTO users(email, password, salt) VALUES(?, ?, ?)`
+	query := `INSERT INTO users(email, password) VALUES(?, ?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(u.Email, u.Password, u.Salt)
+	hashedPassword, err := utils.HashPassword(u.Password)
+	if err != nil {
+		return nil
+	}
+
+	result, err := stmt.Exec(u.Email, hashedPassword)
 	if err != nil {
 		return err
 	}
