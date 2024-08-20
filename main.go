@@ -1,19 +1,16 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/plug-pathomgphong/golang-rest/db"
+	"github.com/plug-pathomgphong/golang-rest/routes"
 )
 
 func main() {
+	db.InitDB()
 	server := gin.Default()
 
-	server.GET("/event", getEvents)
+	routes.RegisterRoutes(server)
 
 	server.Run(":8080")
-}
-
-func getEvents(context *gin.Context) {
-	context.JSON(http.StatusOK, gin.H{"message": "hello"})
 }
