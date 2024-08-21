@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/plug-pathomgphong/golang-rest/db"
 	"github.com/plug-pathomgphong/golang-rest/utils"
 )
@@ -32,4 +34,24 @@ func (u User) Save() error {
 	userId, err := result.LastInsertId()
 	u.Id = userId
 	return err
+}
+
+func (u *User) ValidateCredentials() error {
+	query := `SELECT id, password FROM users WHERE email = ?`
+
+	row := db.DB.QueryRow(query, u.Email)
+
+	var retrievedPassword string
+	err := row.Scan(&u.Id, &retrievedPassword)
+	if err != nil {
+		return errors.New(`credentials invalid`)
+	}
+
+	passwordIsValid := utils.VerifyPassword(u.Password, retrievedPassword)
+
+	if !passwordIsValid {
+		return errors.New(`credentials invalid`)
+	}
+
+	return nil
 }
