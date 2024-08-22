@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/plug-pathomgphong/golang-rest/models"
-	"github.com/plug-pathomgphong/golang-rest/utils"
 )
 
 func getEvents(context *gin.Context) {
@@ -34,26 +33,27 @@ func getEvent(context *gin.Context) {
 }
 
 func createEvent(context *gin.Context) {
-	token := context.Request.Header.Get("Authorization")
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "Not authenticate."})
-		return
-	}
+	// token := context.Request.Header.Get("Authorization")
+	// if token == "" {
+	// 	context.JSON(http.StatusUnauthorized, gin.H{"message": "Not authenticate."})
+	// 	return
+	// }
 
-	userId, err := utils.VerifyToken(token)
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"message": "Not authenticate."})
-		return
-	}
+	// userId, err := utils.VerifyToken(token)
+	// if err != nil {
+	// 	context.JSON(http.StatusUnauthorized, gin.H{"message": "Not authenticate."})
+	// 	return
+	// }
 
 	var event models.Event
-	err = context.ShouldBindJSON(&event)
+	err := context.ShouldBindJSON(&event)
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse requst data.", "error": err})
 		return
 	}
 
+	userId := context.GetInt64("userId")
 	event.UserId = userId
 
 	err = event.Save()
