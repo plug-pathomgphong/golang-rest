@@ -23,6 +23,12 @@ func registerForEvent(context *gin.Context) {
 		return
 	}
 
+	isRegistered := models.IsUserRegisteredForEvent(event.Id, userId)
+	if isRegistered {
+		context.JSON(http.StatusConflict, gin.H{"message": "User is already registered for this event."})
+		return
+	}
+
 	// save event id with user id
 	err = event.Register(userId)
 	if err != nil {
