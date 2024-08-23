@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/plug-pathomgphong/golang-rest/db"
@@ -131,4 +132,19 @@ func (e *Event) CancelRegister(userId int64) error {
 	_, err = stmt.Exec(e.Id, userId)
 
 	return err
+}
+
+func IsUserRegisteredForEvent(eventId, userId int64) bool {
+	query := `SELECT COUNT(1) FROM registrations WHERE event_id = ? AND user_id = ?`
+	row := db.DB.QueryRow(query, eventId, userId)
+	var count int
+	err := row.Scan(&count)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// ไม่พบข้อมูล หมายถึงผู้ใช้ยังไม่ได้ลงทะเบียน
+			return false
+		}
+		return false
+	}
+	return count > 0
 }
